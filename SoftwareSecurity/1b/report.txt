@@ -1,0 +1,97 @@
+http://www.postgresql.org/docs/9.1/static/auth-methods.html
+
+SQL injection
+
+-*sanitize inputs
+Filter out malicious characters code from input before processing.
+Remove everything but good data
+
+-Escape-safe inputs (for html)
+For fields where you have to accommodate special characters (names like O’Reilly)
+stops html and other scripts from rednering after stor in output (like autogen alex)
+
+*proper prepared statements
+Consider the input verbatim instead of as SQL by compiling input as an internal form
+
+dynamically generated output
+See htmlspecialchars and htmlentities in PHP htmlexcape to scrub input out
+<font color="red"><?=$g_errors ?></font><br/><br/>
+Welcome <?= $g_userFirstName ?>.
+echo("<tr> <td>$expression</td><td>$deleteLink</td><td>$firstName $lastName</td></tr>");
+
+authentication sql clauses => md5, LDAP, SSL connections, Certificate Authentication
+http://www.postgresql.org/docs/9.1/static/auth-methods.html
+
+
+
+
+XSS
+-whitelist good inputs in php but not a good defense
+->validate length characters format and logic of input
+-An alternative is to escape all input from the user. This is still dangerous. as you must be aware of the ways other browsers interpret escaped characters. See htmlspecialchars and htmlentities in PHP htmlexcape.
+-data escaping
+-
+-consider auto-sanitization libraries like OWASP’s AntiSamy or the Java HTML Sanitizer Project.
+-Consider Content Security Policy (CSP) to defend against XSS across your entire site.
+
+XSRF
+-page tokens
+captcha
+
+Broken Authentication and Session Management
+
+DONT USE REQUEST AND SESSIONS ?
+It's even possible to take preventative measures to warn when forging is being attempted. If you know ahead of time exactly where a variable should be coming from, you can check to see if the submitted data is coming from an inappropriate kind of submission. While it doesn't guarantee that data has not been forged, it does require an attacker to guess the right kind of forging. If you don't care where the request data comes from, you can use $_REQUEST as it contains a mix of GET, POST and COOKIE data.
+http://php.net/manual/en/security.globals.php
+
+delete your using request only and its not a form if you delete it because server does it
+from using $_REQUEST
+
+form post NOT LOCKED DOWN serverside so can alter server via URL even with post
+114<form method="post">
+128<form method="post">
+but can still access it via URL?
+
+get delete is terrible => should be delete for REST veers from standard
+$deleteLink="<a href=\"?operation=deleteExpression&expressionId=$expressionId&accountId=$g_accountId\"><img src=\"delete.png\" width=\"20\" border=\"0\" /></a>";
+
+*34-35*get requests change to post so ids arent exposed in the pathway
+$expressionId = $_REQUEST['expressionId'];
+		$accountId=$_REQUEST['accountId'];
+
+-hash passwords using md5
+-no session destroy instead session unset
+
+
+Sever Setup
+
+-Limit Permissions
+Use a database connection with the most limited rights possible
+Query-only access to input tables, and no access to any other table.
+
+-Use Stored Procedures
+[37] Use stored procedures for performing access on the application's behalf, which can eliminate SQL entirely
+no dynamic query generation
+
+-Isolate Webserver
+Design the network infrastructure to assume that the bad guy will have full administrator access to the machine, and then attempt to limit how that can be leveraged to compromise other things
+
+*Configure Error Reports***
+Default error reporting for some frameworks includes developer debugging information, and this cannot be shown to outside users.
+Restrict debugger information to just internal
+
+other
+-Password in plain site: $dbconn = pg_connect("dbname=fourfours user=ff host=localhost password=adg135sfh246"); <=> use environment variable
+--http://serverfault.com/questions/417085/password-management-with-pg-connect
+--use the following: Do ensure the server is secure and you can also enable postgres to listen on SSL so that the plain text password in transit is encrypted. You can also hash the password and send it to postgres. See the link below about auth methods.
+-no html charset stated in head meta
+
+
+-names are vary obvious in forms
+
+-why is form input hidden:
+<input type="hidden" name="operation" value="login"/>
+<input type="hidden" name="value" value="<?=$i?>"/>
+	<input type="hidden" name="operation" value="addExpression"/>
+	<input type="hidden" name="accountId" value="<?=$g_accountId ?>"/>
+    can use javascript to maje the inputs not hidden
